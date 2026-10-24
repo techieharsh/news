@@ -203,7 +203,7 @@ You must return ONLY a valid JSON object with the following keys (no markdown co
                     data=json.dumps(payload).encode("utf-8"),
                     headers={"Content-Type": "application/json"}
                 )
-                with urllib.request.urlopen(req, timeout=45) as response:
+                with urllib.request.urlopen(req, timeout=60) as response:
                     result = json.loads(response.read().decode("utf-8"))
 
                 parts = result["candidates"][0]["content"]["parts"]
