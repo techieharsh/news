@@ -1,0 +1,7 @@
+# Secret environment variables (Never upload to GitHub!)
+.env
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
