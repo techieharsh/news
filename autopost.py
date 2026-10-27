@@ -133,7 +133,9 @@ def fetch_healthline_nutrition_articles(history, max_articles=3):
     seen = set()
     ignored_patterns = [
         "/category/", "/tag/", "/author/", "/about/", "/contact",
-        "calculator", "grocery-delivery", "meal-kits", "refresh-letter"
+        "calculator", "grocery-delivery", "meal-kits", "refresh-letter",
+        "food-and-nutrients", "nutrition-for-conditions", "vitamins-and-supplements",
+        "weight-management"
     ]
     candidate_urls = []
 
@@ -151,7 +153,9 @@ def fetch_healthline_nutrition_articles(history, max_articles=3):
     print(f"[*] Discovered {len(candidate_urls)} unposted Healthline nutrition article URLs.")
 
     articles = []
-    for art_url in candidate_urls[:max_articles]:
+    for art_url in candidate_urls:
+        if len(articles) >= max_articles:
+            break
         try:
             print(f"[*] Scraping Healthline article: {art_url}")
             art_req = urllib.request.Request(art_url, headers=headers)
@@ -169,7 +173,7 @@ def fetch_healthline_nutrition_articles(history, max_articles=3):
             else:
                 body_text = ""
 
-            if title and body_text:
+            if title and len(body_text.split()) >= 150:
                 articles.append({
                     "title": title,
                     "link": art_url,
@@ -178,6 +182,8 @@ def fetch_healthline_nutrition_articles(history, max_articles=3):
                     "is_healthline": True
                 })
                 print(f"[+] Extracted: '{title}' ({len(body_text.split())} words)")
+            else:
+                print(f"[-] Skipped non-article/short page: {art_url}")
         except Exception as e:
             print(f"[!] Error extracting {art_url}: {e}")
 
@@ -433,7 +439,7 @@ def run():
     history = load_history()
 
     # 1. Fetch from Healthline Nutrition
-    nutrition_articles = fetch_healthline_nutrition_articles(history, max_articles=2)
+    nutrition_articles = fetch_healthline_nutrition_articles(history, max_articles=MAX_POSTS_PER_RUN)
     unposted_nutrition = [a for a in nutrition_articles if a["link"] not in history]
     print(f"[*] New unposted Healthline nutrition articles: {len(unposted_nutrition)}")
 
@@ -442,12 +448,24 @@ def run():
     unposted_news = [a for a in news_articles if a["link"] not in history]
     print(f"[*] New unposted news articles: {len(unposted_news)}")
 
-    # Select candidates to process (balanced between nutrition and breaking news)
+    # Select candidates to process up to MAX_POSTS_PER_RUN
     candidates = []
-    if unposted_nutrition:
-        candidates.append(unposted_nutrition[0])
-    if unposted_news:
-        candidates.append(unposted_news[0])
+    nut_idx = 0
+    news_idx = 0
+    while len(candidates) < MAX_POSTS_PER_RUN:
+        added = False
+        if nut_idx < len(unposted_nutrition):
+            candidates.append(unposted_nutrition[nut_idx])
+            nut_idx += 1
+            added = True
+            if len(candidates) >= MAX_POSTS_PER_RUN:
+                break
+        if news_idx < len(unposted_news):
+            candidates.append(unposted_news[news_idx])
+            news_idx += 1
+            added = True
+        if not added:
+            break
 
     if not candidates:
         print("[✓] All articles from both news and nutrition sources are up to date. Nothing to post.")
