@@ -27,15 +27,9 @@
       </b:if>
       <link expr:href='data:view.url.canonical' rel='canonical'/>
       <data:blog.feedLinks/><data:blog.meTag/>
-      <!-- SEO Meta Description (Unique per post to prevent duplicate description penalties) -->
+      <!-- SEO Meta Description (100% unique per post to eliminate duplicate description penalties) -->
       <b:if cond='data:view.isPost'>
-        <b:if cond='data:view.description and data:view.description != data:blog.description'>
-          <meta expr:content='data:view.description.escaped' name='description'/>
-        <b:elseif cond='data:widgets.Blog.first.posts[0].snippets.short'/>
-          <meta expr:content='data:widgets.Blog.first.posts[0].snippets.short.escaped' name='description'/>
-        <b:else/>
-          <meta expr:content='data:view.title.escaped + &quot; - Complete verified news reporting and deep analysis on Dainik Saar.&quot;' name='description'/>
-        </b:if>
+        <meta expr:content='data:view.title.escaped + &quot; - Read complete verified news reporting, analysis, key facts, and latest updates on Dainik Saar.&quot;' name='description'/>
       <b:elseif cond='data:view.isPage'/>
         <meta expr:content='data:view.description ? data:view.description.escaped : data:view.title.escaped + &quot; - Dainik Saar official page.&quot;' name='description'/>
       <b:else/>
@@ -62,13 +56,7 @@
       <meta expr:content='data:view.title.escaped' property='og:title'/>
       <meta expr:content='data:blog.url.canonical' property='og:url'/>
       <b:if cond='data:view.isPost'>
-        <b:if cond='data:view.description and data:view.description != data:blog.description'>
-          <meta expr:content='data:view.description.escaped' property='og:description'/>
-        <b:elseif cond='data:widgets.Blog.first.posts[0].snippets.short'/>
-          <meta expr:content='data:widgets.Blog.first.posts[0].snippets.short.escaped' property='og:description'/>
-        <b:else/>
-          <meta expr:content='data:view.title.escaped + &quot; - Complete verified news reporting and deep analysis on Dainik Saar.&quot;' property='og:description'/>
-        </b:if>
+        <meta expr:content='data:view.title.escaped + &quot; - Read complete verified news reporting, analysis, key facts, and latest updates on Dainik Saar.&quot;' property='og:description'/>
       <b:else/>
         <meta expr:content='data:view.description.escaped' property='og:description'/>
       </b:if>
@@ -95,13 +83,7 @@
       <meta expr:content='data:view.title.escaped' name='twitter:title'/>
       <meta expr:content='data:blog.url.canonical' name='twitter:domain'/>
       <b:if cond='data:view.isPost'>
-        <b:if cond='data:view.description and data:view.description != data:blog.description'>
-          <meta expr:content='data:view.description.escaped' name='twitter:description'/>
-        <b:elseif cond='data:widgets.Blog.first.posts[0].snippets.short'/>
-          <meta expr:content='data:widgets.Blog.first.posts[0].snippets.short.escaped' name='twitter:description'/>
-        <b:else/>
-          <meta expr:content='data:view.title.escaped + &quot; - Complete verified news reporting and deep analysis on Dainik Saar.&quot;' name='twitter:description'/>
-        </b:if>
+        <meta expr:content='data:view.title.escaped + &quot; - Read complete verified news reporting, analysis, key facts, and latest updates on Dainik Saar.&quot;' name='twitter:description'/>
       <b:else/>
         <meta expr:content='data:view.description.escaped' name='twitter:description'/>
       </b:if>
@@ -112,9 +94,9 @@
       <b:if cond='data:view.isHomepage'>
         <script type='application/ld+json'>{&quot;@context&quot;:&quot;http://schema.org&quot;,&quot;@type&quot;:&quot;WebSite&quot;,&quot;name&quot;:&quot;<data:view.title.escaped/>&quot;,&quot;url&quot;:&quot;<data:view.url.canonical/>&quot;,&quot;potentialAction&quot;:{&quot;@type&quot;:&quot;SearchAction&quot;,&quot;target&quot;:&quot;<data:view.url.canonical/>search?q={search_term_string}&quot;,&quot;query-input&quot;:&quot;required name=search_term_string&quot;}}</script>
       </b:if>
-<link href='//1.bp.blogspot.com' rel='dns-prefetch'/> <link href='//28.2bp.blogspot.com' rel='dns-prefetch'/> <link href='//3.bp.blogspot.com' rel='dns-prefetch'/> <link href='//4.bp.blogspot.com' rel='dns-prefetch'/> <link href='//2.bp.blogspot.com' rel='dns-prefetch'/> <link href='//www.blogger.com' rel='dns-prefetch'/> <link href='//maxcdn.bootstrapcdn.com' rel='dns-prefetch'/> <link href='//fonts.googleapis.com' rel='dns-prefetch'/> <link href='//use.fontawesome.com' rel='dns-prefetch'/> <link href='//ajax.googleapis.com' rel='dns-prefetch'/> <link href='//resources.blogblog.com' rel='dns-prefetch'/> <link href='//feeds.feedburner.com' rel='dns-prefetch'/> <link href='//cdnjs.cloudflare.com' rel='dns-prefetch'/> <link href='//www.google-analytics.com' rel='dns-prefetch'/> <link href='//themes.googleusercontent.com ' rel='dns-prefetch'/> <link href='//pagead2.googlesyndication.com' rel='dns-prefetch'/> <link href='//googleads.g.doubleclick.net' rel='dns-prefetch'/> <link href='//www.gstatic.com' rel='preconnect'/> <link href='//www.googletagservices.com' rel='dns-prefetch'/> <link href='//static.xx.fbcdn.net' rel='dns-prefetch'/> <link href='//tpc.googlesyndication.com' rel='dns-prefetch'/> <link href='//apis.google.com' rel='dns-prefetch'/> <link href='//www.facebook.com' rel='dns-prefetch'/> <link href='//connect.facebook.net' rel='dns-prefetch'/> <link href='//twitter.com' rel='dns-prefetch'/> <link href='//www.youtube.com' rel='dns-prefetch'/> <link href='//www.pinterest.com' rel='dns-prefetch'/> <link href='//www.linkedin.com' rel='dns-prefetch'/>
-<!-- Font Awesome Free 5.15.2 -->
-<link href='//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/fontawesome.min.css' rel='stylesheet'/>
+<!-- Optimized Non-Blocking Font Awesome Free 5.15.2 (Prevents PageSpeed Render-Blocking) -->
+<link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/fontawesome.min.css' media='print' onload='this.media=&quot;all&quot;' rel='stylesheet'/>
+<noscript><link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/fontawesome.min.css' rel='stylesheet'/></noscript>
 <b:if cond='!data:view.isLayoutMode'>
 <!-- Template Style CSS -->
 <b:skin version='1.3.0'><![CDATA[/*
@@ -2794,9 +2776,11 @@ disqusShortname = "pikitemplates";
                   <b:widget-setting name='text-5'>_Sarkari Yojana</b:widget-setting>
                   <b:widget-setting name='text-4'>_Festival</b:widget-setting>
                   <b:widget-setting name='text-6'>_Jobs</b:widget-setting>
+                  <b:widget-setting name='text-7'>Nutrition</b:widget-setting>
                   <b:widget-setting name='sorting'>NONE</b:widget-setting>
                   <b:widget-setting name='link-1'>https://dainiksaar.blogspot.com/search/label/Entertainment</b:widget-setting>
                   <b:widget-setting name='link-2'>https://dainiksaar.blogspot.com/search/label/Health</b:widget-setting>
+                  <b:widget-setting name='link-7'>https://dainiksaar.blogspot.com/search/label/Nutrition</b:widget-setting>
                   <b:widget-setting name='link-0'>/</b:widget-setting>
                 </b:widget-settings>
                 <b:includable id='main'>
@@ -2807,6 +2791,7 @@ disqusShortname = "pikitemplates";
                     <b:loop values='data:links' var='link'>
                       <li itemprop='name'><a expr:href='data:link.target' itemprop='url'><data:link.name/></a></li>
                     </b:loop>
+                    <li itemprop='name'><a href='https://dainiksaar.blogspot.com/search/label/Nutrition' itemprop='url'>Nutrition</a></li>
                   </ul>
                 </b:includable>
               </b:widget>
