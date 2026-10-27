@@ -123,64 +123,41 @@ def rewrite_with_gemini(article):
     clean_body = re.sub(r'\s+', ' ', clean_body).strip()
 
     prompt = f"""
-You are a senior news journalist and SEO editor for 'Dainik Saar'.
-Rewrite the following news article into a completely unique, highly informative, and original news piece.
-Avoid any copyright issues or duplicate content penalties by changing the sentence structure, perspective, and phrasing.
+You are a senior investigative news journalist and lead SEO editor for 'Dainik Saar' (an authoritative news and analysis publication).
+Your task is to transform the following raw news wire into an in-depth, original, comprehensive, and authoritative journalistic report (minimum 750 to 1,000 words).
+Ensure high Information Gain (E-E-A-T): Do not simply summarize or rephrase sentences. Expand with rich analytical context, explain historical background, analyze industry/societal implications, and weave data and perspectives into an engaging narrative that satisfies Google's Helpful Content System.
 
 ORIGINAL TITLE: {article['title']}
 ORIGINAL CONTENT:
-{clean_body[:3000]}
+{clean_body[:4000]}
+
+EDITORIAL GUIDELINES:
+1. TITLE: Create an irresistible, click-worthy, yet factually accurate news headline (English, 55-70 characters).
+2. INTRO: Begin directly with a powerful lead paragraph that hooks the reader and clearly explains the core revelation, who is impacted, and why it matters today.
+3. HEADINGS: Use dynamic, natural, topic-specific <h2> and <h3> subheadings (do NOT use repetitive or generic headers like 'Key Highlights' or 'In-Depth Analysis' for every post; craft headings that fit the story).
+4. DEPTH & SECTIONS (Target 750-1000+ words total):
+   - Lead Story & Key Takeaway (highlighting the core facts)
+   - Essential Details & Data Points (bullet points with concrete figures, percentages, dates, and names)
+   - Deep Background, Context & Previous Developments (how did we get here?)
+   - Policy, Market, or Societal Implications (who benefits, what changes?)
+   - Official Statements & Expert Perspectives (synthesized quotes and viewpoints)
+   - Future Roadmap & What to Watch Next
+   - Frequently Asked Questions (2-3 highly searched, thoughtful questions with detailed, authoritative answers)
+5. FORMATTING: Clean semantic HTML using <p>, <h2>, <h3>, <ul>, <li>, and <blockquote>. Use modern CSS classes:
+   - Lead paragraph: <p class=\"story-lead\" style=\"font-size:18px;line-height:1.7;color:#1e293b;font-weight:500;margin-bottom:20px;\">
+   - Key stats/points: <div class=\"story-highlights\" style=\"background:#f8fafc;border-left:4px solid #2563eb;padding:16px 20px;border-radius:8px;margin:24px 0;\">
+   - Section headings: <h2 style=\"font-size:22px;color:#0f172a;margin-top:28px;margin-bottom:12px;font-weight:700;\">
+   - FAQ container: <div class=\"faq-section\" style=\"margin-top:30px;background:#f8fafc;padding:20px;border-radius:10px;\">
+6. Do NOT include <html>, <head>, or <body> tags.
 
 OUTPUT FORMAT IN STRICT JSON:
-You must return ONLY a valid JSON object with the following keys (no markdown code blocks, just raw JSON):
+You must return ONLY a valid JSON object with the following keys (no markdown code fences, just raw JSON):
 {{
-    "new_title": "A captivating, high-CTR, SEO-optimized title (English, 50-70 characters)",
-    "meta_description": "A compelling 140-160 character summary for search engines",
-    "image_prompt": "A 5-8 word descriptive prompt for a photorealistic editorial news banner photo (e.g. 'indian doctors in modern research laboratory', 'commercial electric vehicle in city street', 'busy corporate headquarters')",
+    "new_title": "Compelling, high-CTR, SEO-optimized title",
+    "meta_description": "A unique, compelling 140-160 character meta description summarizing the key news hook",
+    "image_prompt": "A 5-8 word descriptive prompt for a photorealistic editorial news photo",
     "labels": ["Category1", "Tag2", "Tag3"],
-    "html_content": "HTML body of the rewritten article with a modern, high-converting digital magazine layout. Structure strictly using these semantic sections:
-        1. EXECUTIVE SUMMARY CARD:
-           <div class=\"post-summary-card\">
-               <div class=\"summary-badge\">⚡ QUICK TAKEAWAY</div>
-               <p class=\"summary-lead\">[A compelling 2-3 sentence executive summary highlighting the core revelation of the story.]</p>
-           </div>
-        2. KEY HIGHLIGHTS BOX:
-           <div class=\"post-highlights-box\">
-               <h2 class=\"section-title\"><span class=\"title-icon\">📌</span> Key Highlights & Background</h2>
-               <ul class=\"highlights-list\">
-                   <li><strong>[Metric/Event]:</strong> [Concise data-backed bullet point]</li>
-                   <li><strong>[Metric/Event]:</strong> [Concise data-backed bullet point]</li>
-                   <li><strong>[Metric/Event]:</strong> [Concise data-backed bullet point]</li>
-                   <li><strong>[Metric/Event]:</strong> [Concise data-backed bullet point]</li>
-               </ul>
-           </div>
-        3. IN-DEPTH ANALYSIS:
-           <h2 class=\"section-title\"><span class=\"title-icon\">📰</span> Comprehensive Details & Analysis</h2>
-           <p>[Detailed, journalistic paragraph explaining what happened and why it matters.]</p>
-           <p>[Second detailed paragraph with context, statistics, or stakeholder quotes.]</p>
-        4. INDUSTRY IMPACT / WHAT HAPPENS NEXT:
-           <h2 class=\"section-title\"><span class=\"title-icon\">🚀</span> Industry Impact & What Happens Next</h2>
-           <p>[Forward-looking analysis explaining upcoming milestones, regulatory decisions, or market shifts.]</p>
-        5. INTERACTIVE FAQ SECTION:
-           <h2 class=\"section-title\"><span class=\"title-icon\">❓</span> Frequently Asked Questions (FAQ)</h2>
-           <div class=\"faq-container\">
-               <div class=\"faq-item\">
-                   <div class=\"faq-question\"><span class=\"faq-q-badge\">Q</span> [Insightful common question readers will have]</div>
-                   <div class=\"faq-answer\">[Clear, direct 1-2 sentence factual answer.]</div>
-               </div>
-               <div class=\"faq-item\">
-                   <div class=\"faq-question\"><span class=\"faq-q-badge\">Q</span> [Second common question]</div>
-                   <div class=\"faq-answer\">[Clear, direct 1-2 sentence factual answer.]</div>
-               </div>
-           </div>
-        6. VERIFICATION NOTE:
-           <div class=\"factcheck-box\">
-               <span class=\"factcheck-icon\">✓</span>
-               <div class=\"factcheck-text\">
-                   <strong>Editorial Reference:</strong> Verified and synthesized from accredited news wires and primary source reporting by Dainik Saar Newsroom.
-               </div>
-           </div>
-        Do NOT include <html>, <head>, or <body> tags. Only output clean, modern inner HTML."
+    "html_content": "HTML string containing the complete, in-depth news report formatted with the styles above"
 }}
 """
 
@@ -308,7 +285,6 @@ def publish_to_blogger(new_title, html_content, labels, source_url="", image_pro
 <a href="{image_url}" style="margin-left: 1em; margin-right: 1em;">
 <img alt="{new_title}" border="0" data-original-height="675" data-original-width="1200" src="{image_url}" style="width: 100%; max-width: 100%; height: auto; border-radius: 12px; object-fit: cover; display: block; margin: 0 auto; box-shadow: 0 6px 24px rgba(0,0,0,0.08);" />
 </a>
-<div class="hero-caption" style="font-size: 13px; color: #64748b; margin-top: 8px; font-style: italic;">Editorial News Photo | Dainik Saar Special Coverage</div>
 </div>\n\n"""
 
     # 3. Modern interactive pill tags

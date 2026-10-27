@@ -27,11 +27,29 @@
       </b:if>
       <link expr:href='data:view.url.canonical' rel='canonical'/>
       <data:blog.feedLinks/><data:blog.meTag/>
-      <meta expr:content='data:view.description.escaped' name='description'/>
-      <!-- Metadata for Open Graph protocol available here http://ogp.me/. -->
-      <b:if cond='!data:view.isSearch and !data:view.isLabelSearch'>
-      <meta content='index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' name='robots'/>
+      <!-- SEO Meta Description (Unique per post to prevent duplicate description penalties) -->
+      <b:if cond='data:view.isPost'>
+        <b:if cond='data:view.description and data:view.description != data:blog.description'>
+          <meta expr:content='data:view.description.escaped' name='description'/>
+        <b:elseif cond='data:widgets.Blog.first.posts[0].snippets.short'/>
+          <meta expr:content='data:widgets.Blog.first.posts[0].snippets.short.escaped' name='description'/>
+        <b:else/>
+          <meta expr:content='data:view.title.escaped + &quot; - Complete verified news reporting and deep analysis on Dainik Saar.&quot;' name='description'/>
+        </b:if>
+      <b:elseif cond='data:view.isPage'/>
+        <meta expr:content='data:view.description ? data:view.description.escaped : data:view.title.escaped + &quot; - Dainik Saar official page.&quot;' name='description'/>
+      <b:else/>
+        <meta expr:content='data:blog.description.escaped' name='description'/>
       </b:if>
+
+      <!-- Advanced Robots Directives (Prevent crawl budget waste on internal search/archives while fully indexing posts) -->
+      <b:if cond='!data:view.isSearch and !data:view.isLabelSearch and !data:view.isArchive'>
+        <meta content='index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' name='robots'/>
+      <b:else/>
+        <meta content='noindex, follow' name='robots'/>
+      </b:if>
+
+      <!-- Metadata for Open Graph protocol available here http://ogp.me/. -->
       <b:if cond='data:view.isHomepage'>
         <meta content='website' property='og:type'/>
       </b:if>
@@ -43,7 +61,17 @@
       </b:if>
       <meta expr:content='data:view.title.escaped' property='og:title'/>
       <meta expr:content='data:blog.url.canonical' property='og:url'/>
-      <meta expr:content='data:view.description.escaped' property='og:description'/>
+      <b:if cond='data:view.isPost'>
+        <b:if cond='data:view.description and data:view.description != data:blog.description'>
+          <meta expr:content='data:view.description.escaped' property='og:description'/>
+        <b:elseif cond='data:widgets.Blog.first.posts[0].snippets.short'/>
+          <meta expr:content='data:widgets.Blog.first.posts[0].snippets.short.escaped' property='og:description'/>
+        <b:else/>
+          <meta expr:content='data:view.title.escaped + &quot; - Complete verified news reporting and deep analysis on Dainik Saar.&quot;' property='og:description'/>
+        </b:if>
+      <b:else/>
+        <meta expr:content='data:view.description.escaped' property='og:description'/>
+      </b:if>
       <meta expr:content='data:blog.title.escaped' property='og:site_name'/>
       <b:tag cond='data:view.isMultipleItems and data:widgets.Blog.first.posts[0].featuredImage' expr:content='data:widgets.Blog.first.posts[0].featuredImage' name='meta' property='og:image'/>
       <b:if cond='data:view.featuredImage'>
@@ -66,8 +94,18 @@
       <meta content='summary_large_image' name='twitter:card'/>
       <meta expr:content='data:view.title.escaped' name='twitter:title'/>
       <meta expr:content='data:blog.url.canonical' name='twitter:domain'/>
-      <meta expr:content='data:view.description.escaped' name='twitter:description'/>
-      <meta expr:content='data:view.description.escaped' name='twitter:creator'/>
+      <b:if cond='data:view.isPost'>
+        <b:if cond='data:view.description and data:view.description != data:blog.description'>
+          <meta expr:content='data:view.description.escaped' name='twitter:description'/>
+        <b:elseif cond='data:widgets.Blog.first.posts[0].snippets.short'/>
+          <meta expr:content='data:widgets.Blog.first.posts[0].snippets.short.escaped' name='twitter:description'/>
+        <b:else/>
+          <meta expr:content='data:view.title.escaped + &quot; - Complete verified news reporting and deep analysis on Dainik Saar.&quot;' name='twitter:description'/>
+        </b:if>
+      <b:else/>
+        <meta expr:content='data:view.description.escaped' name='twitter:description'/>
+      </b:if>
+      <meta expr:content='data:blog.title.escaped' name='twitter:creator'/>
       <meta content='en_US' property='og:locale'/>
       <meta content='en_GB' property='og:locale:alternate'/>
       <meta content='id_ID' property='og:locale:alternate'/>
@@ -1846,7 +1884,7 @@ disqusShortname = "pikitemplates";
             <b:includable id='postLocation'/>
             <b:includable id='postMeta' var='post'>
                     <b:if cond='!data:view.isPage'>
-                <script type='application/ld+json'>{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;NewsArticle&quot;,&quot;mainEntityOfPage&quot;:{&quot;@type&quot;:&quot;WebPage&quot;,&quot;@id&quot;:&quot;<data:post.url.canonical.jsonEscaped/>&quot;},&quot;headline&quot;:&quot;<data:post.title.jsonEscaped/>&quot;,&quot;description&quot;:&quot;<data:post.snippets.short.jsonEscaped/>&quot;,&quot;image&quot;:[&quot;<data:post.featuredImage.jsonEscaped/>&quot;],&quot;datePublished&quot;:&quot;<data:post.date.iso8601.jsonEscaped/>&quot;,&quot;dateModified&quot;:&quot;<data:post.lastUpdated.iso8601.jsonEscaped/>&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Person&quot;,&quot;name&quot;:&quot;<data:post.author.name.jsonEscaped/>&quot;,&quot;url&quot;:&quot;<data:post.url.canonical.jsonEscaped/>&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;<data:blog.title/>&quot;,&quot;logo&quot;:{&quot;@type&quot;:&quot;ImageObject&quot;,&quot;url&quot;:&quot;https://lh3.googleusercontent.com/ULB6iBuCeTVvSjjjU1A-O8e9ZpVba6uvyhtiWRti_rBAs9yMYOFBujxriJRZ-A=h60&quot;,&quot;width&quot;:206,&quot;height&quot;:60}}}</script>
+                <script type='application/ld+json'>{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;NewsArticle&quot;,&quot;mainEntityOfPage&quot;:{&quot;@type&quot;:&quot;WebPage&quot;,&quot;@id&quot;:&quot;<data:post.url.canonical.jsonEscaped/>&quot;},&quot;headline&quot;:&quot;<data:post.title.jsonEscaped/>&quot;,&quot;description&quot;:&quot;<data:post.snippets.short.jsonEscaped/>&quot;,&quot;image&quot;:[&quot;<data:post.featuredImage.jsonEscaped/>&quot;],&quot;datePublished&quot;:&quot;<data:post.date.iso8601.jsonEscaped/>&quot;,&quot;dateModified&quot;:&quot;<data:post.lastUpdated.iso8601.jsonEscaped/>&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Person&quot;,&quot;name&quot;:&quot;<data:post.author.name.jsonEscaped/>&quot;,&quot;url&quot;:&quot;<data:blog.homepageUrl.canonical.jsonEscaped/>p/about-us.html&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;<data:blog.title/>&quot;,&quot;logo&quot;:{&quot;@type&quot;:&quot;ImageObject&quot;,&quot;url&quot;:&quot;https://lh3.googleusercontent.com/ULB6iBuCeTVvSjjjU1A-O8e9ZpVba6uvyhtiWRti_rBAs9yMYOFBujxriJRZ-A=h60&quot;,&quot;width&quot;:206,&quot;height&quot;:60}}}</script>
               </b:if>
             </b:includable>
             <b:includable id='postMetadataJSONImage'/>
@@ -3245,7 +3283,7 @@ disqusShortname = "pikitemplates";
             <b:includable id='postLocation'/>
             <b:includable id='postMeta' var='post'>
                     <b:if cond='!data:view.isPage'>
-                <script type='application/ld+json'>{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;NewsArticle&quot;,&quot;mainEntityOfPage&quot;:{&quot;@type&quot;:&quot;WebPage&quot;,&quot;@id&quot;:&quot;<data:post.url.canonical.jsonEscaped/>&quot;},&quot;headline&quot;:&quot;<data:post.title.jsonEscaped/>&quot;,&quot;description&quot;:&quot;<data:post.snippets.short.jsonEscaped/>&quot;,&quot;image&quot;:[&quot;<data:post.featuredImage.jsonEscaped/>&quot;],&quot;datePublished&quot;:&quot;<data:post.date.iso8601.jsonEscaped/>&quot;,&quot;dateModified&quot;:&quot;<data:post.lastUpdated.iso8601.jsonEscaped/>&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Person&quot;,&quot;name&quot;:&quot;<data:post.author.name.jsonEscaped/>&quot;,&quot;url&quot;:&quot;<data:post.url.canonical.jsonEscaped/>&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;<data:blog.title/>&quot;,&quot;logo&quot;:{&quot;@type&quot;:&quot;ImageObject&quot;,&quot;url&quot;:&quot;https://lh3.googleusercontent.com/ULB6iBuCeTVvSjjjU1A-O8e9ZpVba6uvyhtiWRti_rBAs9yMYOFBujxriJRZ-A=h60&quot;,&quot;width&quot;:206,&quot;height&quot;:60}}}</script>
+                <script type='application/ld+json'>{&quot;@context&quot;:&quot;https://schema.org&quot;,&quot;@type&quot;:&quot;NewsArticle&quot;,&quot;mainEntityOfPage&quot;:{&quot;@type&quot;:&quot;WebPage&quot;,&quot;@id&quot;:&quot;<data:post.url.canonical.jsonEscaped/>&quot;},&quot;headline&quot;:&quot;<data:post.title.jsonEscaped/>&quot;,&quot;description&quot;:&quot;<data:post.snippets.short.jsonEscaped/>&quot;,&quot;image&quot;:[&quot;<data:post.featuredImage.jsonEscaped/>&quot;],&quot;datePublished&quot;:&quot;<data:post.date.iso8601.jsonEscaped/>&quot;,&quot;dateModified&quot;:&quot;<data:post.lastUpdated.iso8601.jsonEscaped/>&quot;,&quot;author&quot;:{&quot;@type&quot;:&quot;Person&quot;,&quot;name&quot;:&quot;<data:post.author.name.jsonEscaped/>&quot;,&quot;url&quot;:&quot;<data:blog.homepageUrl.canonical.jsonEscaped/>p/about-us.html&quot;},&quot;publisher&quot;:{&quot;@type&quot;:&quot;Organization&quot;,&quot;name&quot;:&quot;<data:blog.title/>&quot;,&quot;logo&quot;:{&quot;@type&quot;:&quot;ImageObject&quot;,&quot;url&quot;:&quot;https://lh3.googleusercontent.com/ULB6iBuCeTVvSjjjU1A-O8e9ZpVba6uvyhtiWRti_rBAs9yMYOFBujxriJRZ-A=h60&quot;,&quot;width&quot;:206,&quot;height&quot;:60}}}</script>
               </b:if>
             </b:includable>
             <b:includable id='postMetadataJSONImage'/>
