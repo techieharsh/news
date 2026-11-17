@@ -1,6 +1,6 @@
 # 🤖 Dainik Saar 100% Free & Fully Automated News Publisher
 
-This automated system fetches new articles from **Tishha News** (`https://tishhanews.com/feed/`), uses **Google Gemini AI** (Free Tier) to rewrite the headline, content, and generate SEO keywords (0% plagiarism & zero copyright issues), and automatically posts them to **Dainik Saar** (`https://dainiksaar.blogspot.com/`).
+This automated system fetches articles across multiple top-tier sources—**Wall Street Journal Technology** (`https://www.wsj.com/tech?mod=nav_top_section`), **Healthline Nutrition**, and **Tishha News**—uses **Google Gemini AI** (Free Tier) to synthesize original, in-depth reports, SEO headlines, topic tags, and modern styled layouts (0% plagiarism & zero copyright issues), and automatically publishes them to **Dainik Saar** (`https://dainiksaar.blogspot.com/`).
 
 ---
 

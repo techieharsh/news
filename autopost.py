@@ -34,6 +34,8 @@ if os.path.exists(env_file):
 
 RSS_FEED_URL = "https://tishhanews.com/feed/"
 HEALTHLINE_NUTRITION_URL = "https://www.healthline.com/nutrition"
+WSJ_TECH_URL = "https://www.wsj.com/tech?mod=nav_top_section"
+WSJ_TECH_FEED_URL = "https://feeds.content.dowjones.io/public/rss/RSSWSJD"
 HISTORY_FILE = "posted_history.json"
 
 # Google Gemini API Key (Get free from: https://aistudio.google.com/)
@@ -190,10 +192,65 @@ def fetch_healthline_nutrition_articles(history, max_articles=3):
     return articles
 
 
+def fetch_wsj_technology_articles(history, max_articles=3):
+    """
+    Fetches the latest Technology articles from the Wall Street Journal (WSJ Tech).
+    Sources from WSJ's official technology syndication endpoint corresponding to
+    https://www.wsj.com/tech?mod=nav_top_section.
+    """
+    print(f"[*] Fetching WSJ Technology articles from: {WSJ_TECH_URL}")
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+    }
+    articles = []
+
+    try:
+        req = urllib.request.Request(WSJ_TECH_FEED_URL, headers=headers)
+        with urllib.request.urlopen(req, timeout=30) as response:
+            xml_data = response.read()
+
+        root = ET.fromstring(xml_data)
+        items = root.findall("./channel/item")
+        print(f"[*] Found {len(items)} articles in WSJ Technology feed.")
+
+        for item in items:
+            title = item.find("title").text if item.find("title") is not None else ""
+            link = item.find("link").text if item.find("link") is not None else ""
+            desc = item.find("description").text if item.find("description") is not None else ""
+
+            if not title or not link:
+                continue
+
+            clean_link = link.split("?")[0]
+            if link in history or clean_link in history:
+                continue
+
+            media = item.find("{http://search.yahoo.com/mrss/}content")
+            media_url = media.attrib.get("url", "") if media is not None else ""
+
+            articles.append({
+                "title": title.strip(),
+                "link": link.strip(),
+                "body": desc.strip(),
+                "categories": ["Technology", "Tech"],
+                "is_healthline": False,
+                "is_wsj": True,
+                "source_image": media_url
+            })
+
+            if len(articles) >= max_articles:
+                break
+
+    except Exception as e:
+        print(f"[!] Error fetching WSJ Technology feed: {e}")
+
+    return articles
+
+
 def rewrite_with_gemini(article):
     """
     Calls Google Gemini API (Free) to rewrite the article into a 100% unique,
-    high-ranking SEO news or nutrition report with new title, subheadings, bullet points, and FAQs.
+    high-ranking SEO news, tech, or nutrition report with new title, subheadings, bullet points, and FAQs.
     Guarantees 0% plagiarism and zero copyright infringement.
     """
     if not GEMINI_API_KEY:
@@ -203,6 +260,7 @@ def rewrite_with_gemini(article):
     clean_body = re.sub(r'\s+', ' ', clean_body).strip()
 
     is_nutrition = "Nutrition" in article.get("categories", []) or article.get("is_healthline", False)
+    is_tech = "Technology" in article.get("categories", []) or article.get("is_wsj", False)
 
     if is_nutrition:
         directive = f"""
@@ -210,6 +268,13 @@ You are a senior clinical nutritionist, diet researcher, and lead wellness edito
 Your task is to transform the following nutrition research material into an in-depth, 100% original, comprehensive, and authoritative dietary guide (minimum 750 to 1,000 words).
 Ensure high Information Gain (E-E-A-T): Do NOT copy sentences from the source. Synthesize the scientific evidence, nutritional breakdown, health benefits, meal planning tips, and practical food guidance in your own engaging, trustworthy voice.
 CRITICAL: Include 'Nutrition' in the labels list so it appears in the blog's dedicated Nutrition section.
+"""
+    elif is_tech:
+        directive = f"""
+You are a senior Silicon Valley technology analyst, enterprise software researcher, and lead tech editor for 'Dainik Saar'.
+Your task is to transform the following Wall Street Journal technology report into an in-depth, 100% original, comprehensive, and authoritative technology analysis and report (minimum 750 to 1,000 words).
+Ensure high Information Gain (E-E-A-T): Do NOT copy sentences from the source. Synthesize the technological breakthroughs, business implications, chip architecture/AI developments, market dynamics, and competitive landscape in your own engaging, trustworthy, analytical voice.
+CRITICAL: Include 'Technology' in the labels list so it appears in the blog's dedicated Technology section.
 """
     else:
         directive = f"""
@@ -290,10 +355,12 @@ You must return ONLY a valid JSON object with the following keys (no markdown co
 
                 data = json.loads(raw_text)
 
-                # Ensure Nutrition label is present if it's a nutrition article
+                # Ensure Nutrition / Technology label is present
                 labels = data.get("labels", [])
                 if is_nutrition and "Nutrition" not in labels:
                     labels.insert(0, "Nutrition")
+                if is_tech and "Technology" not in labels:
+                    labels.insert(0, "Technology")
                 data["labels"] = labels
 
                 return data
@@ -354,9 +421,16 @@ def get_curated_news_image(topic_text):
     elif any(k in text for k in ["hospital", "doctor", "health", "med", "clinic", "vaccine", "disease", "virus", "patient"]):
         return "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&h=675&fit=crop&q=80"
 
-    # 3. Technology & AI
-    elif any(k in text for k in ["tech", "ai", "digital", "cyber", "software", "phone", "mobile", "gcc", "data"]):
-        return "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=675&fit=crop&q=80"
+    # 3. Technology, AI & Semiconductors
+    elif any(k in text for k in ["tech", "ai", "digital", "cyber", "software", "phone", "mobile", "gcc", "data", "nvidia", "hardware", "chip", "semiconductor", "cloud", "computing", "silicon", "openai", "intel", "apple", "google", "microsoft", "robotics"]):
+        tech_photos = [
+            "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=675&fit=crop&q=80",
+            "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1200&h=675&fit=crop&q=80",
+            "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&h=675&fit=crop&q=80",
+            "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=675&fit=crop&q=80",
+            "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=1200&h=675&fit=crop&q=80"
+        ]
+        return random.choice(tech_photos)
 
     # 4. Government Schemes & Law
     elif any(k in text for k in ["court", "order", "nadda", "government", "minister", "scheme", "yojana", "policy", "india", "state", "centre", "law"]):
@@ -370,12 +444,12 @@ def get_curated_news_image(topic_text):
         return "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&h=675&fit=crop&q=80"
 
 
-def publish_to_blogger(new_title, html_content, labels, source_url="", image_prompt="", is_healthline=False):
+def publish_to_blogger(new_title, html_content, labels, source_url="", image_prompt="", is_healthline=False, is_wsj=False):
     """
     Publishes the post to Blogger using Blogger's official Post-by-Email feature.
-    - Sourcing: 100% copyright-free Unsplash photography for Healthline (never copies proprietary images).
+    - Sourcing: 100% copyright-free Unsplash photography for Healthline and WSJ (never copies proprietary images).
     - Embeds the image at the top in full-width responsive format.
-    - Assigns tags and Nutrition label cleanly.
+    - Assigns tags and Nutrition/Technology labels cleanly.
     """
     if not (BLOGGER_EMAIL and SENDER_EMAIL and SENDER_APP_PASSWORD):
         raise ValueError("Email credentials not set. Need BLOGGER_EMAIL, SENDER_EMAIL, and SENDER_APP_PASSWORD.")
@@ -387,9 +461,9 @@ def publish_to_blogger(new_title, html_content, labels, source_url="", image_pro
 
     # 1. Source professional, 100% royalty-free image
     image_url = ""
-    # For Healthline, NEVER use source image because Healthline images are copyrighted!
+    # For Healthline and WSJ, NEVER use source image because proprietary images are copyrighted!
     # Always use Unsplash HD editorial photography for 100% copyright safety!
-    if source_url and not is_healthline:
+    if source_url and not is_healthline and not is_wsj:
         print("[*] Sourcing editorial news photo from source article...")
         image_url = extract_source_image(source_url)
         if image_url:
@@ -433,7 +507,7 @@ def publish_to_blogger(new_title, html_content, labels, source_url="", image_pro
 
 def run():
     print("=" * 60)
-    print(f"Starting News & Nutrition Auto-Sync: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"Starting News, Tech & Nutrition Auto-Sync: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 60)
 
     history = load_history()
@@ -443,37 +517,45 @@ def run():
     unposted_nutrition = [a for a in nutrition_articles if a["link"] not in history]
     print(f"[*] New unposted Healthline nutrition articles: {len(unposted_nutrition)}")
 
-    # 2. Fetch from News RSS Feed
+    # 2. Fetch from WSJ Technology
+    wsj_articles = fetch_wsj_technology_articles(history, max_articles=MAX_POSTS_PER_RUN)
+    unposted_wsj = [a for a in wsj_articles if a["link"] not in history]
+    print(f"[*] New unposted WSJ Technology articles: {len(unposted_wsj)}")
+
+    # 3. Fetch from News RSS Feed
     news_articles = fetch_latest_articles()
     unposted_news = [a for a in news_articles if a["link"] not in history]
     print(f"[*] New unposted news articles: {len(unposted_news)}")
 
-    # Select candidates to process up to MAX_POSTS_PER_RUN
+    # Fair round-robin selection across sources up to MAX_POSTS_PER_RUN
     candidates = []
-    nut_idx = 0
-    news_idx = 0
+    sources = [unposted_wsj, unposted_nutrition, unposted_news]
+    idx = 0
     while len(candidates) < MAX_POSTS_PER_RUN:
-        added = False
-        if nut_idx < len(unposted_nutrition):
-            candidates.append(unposted_nutrition[nut_idx])
-            nut_idx += 1
-            added = True
-            if len(candidates) >= MAX_POSTS_PER_RUN:
-                break
-        if news_idx < len(unposted_news):
-            candidates.append(unposted_news[news_idx])
-            news_idx += 1
-            added = True
-        if not added:
+        added_any = False
+        for src in sources:
+            if idx < len(src):
+                candidates.append(src[idx])
+                added_any = True
+                if len(candidates) >= MAX_POSTS_PER_RUN:
+                    break
+        if not added_any:
             break
+        idx += 1
 
     if not candidates:
-        print("[✓] All articles from both news and nutrition sources are up to date. Nothing to post.")
+        print("[✓] All articles from news, tech, and nutrition sources are up to date. Nothing to post.")
         return
 
     processed = 0
     for article in candidates:
-        source_name = "Healthline Nutrition" if article.get("is_healthline") else "Tishha News"
+        if article.get("is_healthline"):
+            source_name = "Healthline Nutrition"
+        elif article.get("is_wsj"):
+            source_name = "Wall Street Journal (Technology)"
+        else:
+            source_name = "Tishha News"
+
         print(f"\n---> Processing: '{article['title']}' from [{source_name}]")
         try:
             # 1. Rewrite with Gemini into 100% unique, plagiarism-free article
@@ -489,7 +571,8 @@ def run():
                 labels=rewritten.get("labels", []),
                 source_url=article.get("link", ""),
                 image_prompt=rewritten.get("image_prompt", ""),
-                is_healthline=article.get("is_healthline", False)
+                is_healthline=article.get("is_healthline", False),
+                is_wsj=article.get("is_wsj", False)
             )
 
             # 3. Mark as posted
